@@ -12,11 +12,10 @@ import {
 } from './types';
 import { supabase } from './supabase';
 
-// العمال المعتمدون حسب طلب المستخدم
+// العمال المعتمدون حسب طلب المستخدم (كلاهما مدراء)
 export const WORKERS: Worker[] = [
-  { name: 'عبدالله', pin: '1988', role: 'cashier' },
-  { name: 'أحمد', pin: '2001', role: 'cashier' },
-  { name: 'مقداد', pin: '7227', role: 'admin' }, // المدير / المالك
+  { name: 'عبدالله', pin: '1988', role: 'admin' },
+  { name: 'أحمد', pin: '2001', role: 'admin' },
 ];
 
 // الأقسام الافتراضية الشاملة للسوبر ماركت

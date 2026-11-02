@@ -295,8 +295,8 @@ export default function App() {
                 <h3 className="text-base font-bold text-white mb-0.5">التقارير والأرباح</h3>
                 <p className="text-xs text-slate-400 mb-2">تقفيل اليومية والتقرير الشهري</p>
                 <div className="flex items-center justify-between text-xs font-bold pt-2 border-t border-slate-800">
-                  <span className="text-blue-400">خاص بالإدارة</span>
-                  <span className="text-slate-300">عرض الأرباح 🔒</span>
+                  <span className="text-blue-400">مباشر وعلني</span>
+                  <span className="text-emerald-400">عرض الأرباح والتقفيل ↗</span>
                 </div>
               </div>
             </div>

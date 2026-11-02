@@ -73,9 +73,9 @@ export default function Login({ onLogin }: Props) {
       <div className="w-full max-w-sm glass-panel rounded-3xl p-6 shadow-2xl border border-slate-800/80">
         <div className="text-center mb-5">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            اختر العامل للوردية
+            اختر المستخدم (المدير)
           </span>
-          <div className="grid grid-cols-3 gap-2 mt-3">
+          <div className="grid grid-cols-2 gap-3 mt-3">
             {WORKERS.map(w => {
               const isSelected = selectedWorker === w.name;
               return (
@@ -87,7 +87,7 @@ export default function Login({ onLogin }: Props) {
                     setPin('');
                     setError(false);
                   }}
-                  className={`py-3 px-2 rounded-2xl flex flex-col items-center justify-center transition-all duration-200 active-press ${
+                  className={`py-3.5 px-3 rounded-2xl flex flex-col items-center justify-center transition-all duration-200 active-press ${
                     isSelected
                       ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-102 font-bold'
                       : 'bg-slate-800/60 text-slate-300 hover:bg-slate-800'
@@ -95,7 +95,7 @@ export default function Login({ onLogin }: Props) {
                 >
                   <UserCheck className={`w-5 h-5 mb-1 ${isSelected ? 'text-white' : 'text-slate-400'}`} />
                   <span className="text-sm">{w.name}</span>
-                  <span className="text-[10px] opacity-75 mt-0.5">{w.role === 'admin' ? 'المدير' : 'كاشير'}</span>
+                  <span className="text-[11px] opacity-80 mt-0.5 text-emerald-200">المدير</span>
                 </button>
               );
             })}

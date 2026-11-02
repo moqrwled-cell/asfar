@@ -34,10 +34,6 @@ interface Props {
 }
 
 export default function ReportsBook({ onBack, workerName }: Props) {
-  const [isUnlocked, setIsUnlocked] = useState(workerName === 'مقداد');
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
-
   const [reportType, setReportType] = useState<'daily' | 'monthly'>('daily');
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -59,70 +55,6 @@ export default function ReportsBook({ onBack, workerName }: Props) {
     setAllExpenses(getAllExpenses());
     setDepartments(getDepartments());
   };
-
-  const handleUnlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pinInput === '7227' || pinInput === '1988' || pinInput === '2001') {
-      setIsUnlocked(true);
-      setPinError(false);
-    } else {
-      setPinError(true);
-      setPinInput('');
-    }
-  };
-
-  // حماية بكلمة مرور للإدارة
-  if (!isUnlocked) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4">
-        <div className="w-full max-w-sm glass-panel rounded-3xl p-6 text-center border-slate-800">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3">
-            <Lock className="w-7 h-7" />
-          </div>
-          <h2 className="text-lg font-bold text-white mb-1">قسم الإدارة والتقارير المالية</h2>
-          <p className="text-xs text-slate-400 mb-4">
-            هذا القسم يتضمن حساب الأرباح وهو مخصص للإدارة. يرجى إدخال رمز المرور.
-          </p>
-
-          <form onSubmit={handleUnlock} className="space-y-3">
-            <input
-              type="password"
-              inputMode="numeric"
-              maxLength={6}
-              value={pinInput}
-              onChange={e => {
-                setPinInput(e.target.value);
-                setPinError(false);
-              }}
-              placeholder="رمز مرور الإدارة"
-              className="w-full bg-slate-950 text-white font-bold text-center text-lg py-2.5 rounded-2xl border border-slate-700 outline-none focus:border-emerald-500 tracking-widest"
-              autoFocus
-            />
-
-            {pinError && (
-              <p className="text-xs text-rose-400 font-semibold">رمز المرور غير صحيح!</p>
-            )}
-
-            <div className="flex gap-2 pt-1">
-              <button
-                type="button"
-                onClick={onBack}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700"
-              >
-                رجوع
-              </button>
-              <button
-                type="submit"
-                className="flex-1 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 active-press"
-              >
-                دخول ✓
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   // --- تصفية وحسابات التقرير اليومي ---
   const dayOrders = allOrders.filter(o => o.date === selectedDate);
