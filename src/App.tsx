@@ -166,9 +166,9 @@ export default function App() {
                   <div className="flex items-center gap-2 text-xs text-slate-400">
                     <span className="text-emerald-400 font-bold">مرحباً {workerName} 👋</span>
                     <span>•</span>
-                    <span className="flex items-center gap-1 text-[11px] text-slate-500">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      سحابي Supabase
+                    <span className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      متصل
                     </span>
                   </div>
                 </div>
@@ -295,8 +295,8 @@ export default function App() {
                 <h3 className="text-base font-bold text-white mb-0.5">التقارير والأرباح</h3>
                 <p className="text-xs text-slate-400 mb-2">تقفيل اليومية والتقرير الشهري</p>
                 <div className="flex items-center justify-between text-xs font-bold pt-2 border-t border-slate-800">
-                  <span className="text-blue-400">مباشر وعلني</span>
-                  <span className="text-emerald-400">عرض الأرباح والتقفيل ↗</span>
+                  <span className="text-slate-400">تقفيل اليومية والأرباح</span>
+                  <span className="text-emerald-400">عرض التفاصيل ↗</span>
                 </div>
               </div>
             </div>

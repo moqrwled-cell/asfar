@@ -1,4 +1,4 @@
-export type PaymentMethod = 'كاش' | 'بنك' | 'محفظة' | 'جوال بي';
+export type PaymentMethod = 'نقدي' | 'بنك فلسطين' | 'بال باي' | 'جوال بي' | 'كاش' | 'بنك' | 'محفظة';
 
 export interface Department {
   id: string;

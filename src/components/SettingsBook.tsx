@@ -60,7 +60,7 @@ export default function SettingsBook({ onBack, workerName, onLogout }: Props) {
     await fetchFromSupabase();
     setSyncStatus(getSyncStatus());
     setSyncLoading(false);
-    setSuccessMsg('تمت المزامنة بنجاح مع Supabase ✓');
+    setSuccessMsg('تمت المزامنة بنجاح ✓');
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
@@ -147,7 +147,7 @@ export default function SettingsBook({ onBack, workerName, onLogout }: Props) {
         </div>
       )}
 
-      {/* بطاقة حالة المزامنة مع Supabase */}
+      {/* بطاقة حالة المزامنة */}
       <div className="glass-panel rounded-3xl p-5 border border-slate-800 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -155,10 +155,10 @@ export default function SettingsBook({ onBack, workerName, onLogout }: Props) {
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">قاعدة البيانات السحابية (Supabase)</h3>
+              <h3 className="text-sm font-bold text-white">المزامنة والنسخ التلقائي</h3>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs text-emerald-400 font-semibold">متصل ومتزامن لحظياً Realtime</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="text-xs text-emerald-400 font-semibold">متصل ومحفوظ تلقائياً</span>
               </div>
             </div>
           </div>
@@ -170,12 +170,12 @@ export default function SettingsBook({ onBack, workerName, onLogout }: Props) {
             className="py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center gap-1.5 active-press"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncLoading ? 'animate-spin text-emerald-400' : ''}`} />
-            <span>{syncLoading ? 'جاري المزامنة...' : 'مزامنة يدوية'}</span>
+            <span>{syncLoading ? 'مزامنة...' : 'تحديث المزامنة'}</span>
           </button>
         </div>
 
         <p className="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
-          ⚡ <strong>نظام الحفظ المزدوج (Offline-First):</strong> يتم حفظ كل عملية فوراً في جهازك (0 تأخير) وتُزامن سحابياً مع Supabase بدون أي فقدان للبيانات حتى لو انقطع اتصال الإنترنت في السوبر ماركت.
+          ✓ البيانات محفوظة في جهازك وتتزامن تلقائياً وبكل بساطة بدون تعقيد.
         </p>
       </div>
 

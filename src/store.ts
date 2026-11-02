@@ -326,18 +326,18 @@ export async function addDailyOrder(params: {
   const date = params.date || getTodayDate();
   const time = getCurrentTime();
   const totalAmount = params.items.reduce((sum, i) => sum + (Number(i.price) * Number(i.quantity)), 0);
-  const isPaid = params.isPaid ?? true; // افتراضياً كاش مدفوع
+  const isPaid = params.isPaid ?? true; // افتراضياً مدفوع
 
   const newOrder: DailyOrder = {
     id: generateId(),
-    customerName: params.customerName.trim() || 'زبون عام (كاش)',
+    customerName: params.customerName.trim() || 'زبون عام',
     items: params.items,
     totalAmount,
     paidAmount: isPaid ? totalAmount : 0,
     discountAmount: 0,
     isPaid,
     transferredToDebt: false,
-    paymentMethod: params.paymentMethod || 'كاش',
+    paymentMethod: params.paymentMethod || 'نقدي',
     workerName: params.workerName,
     note: params.note?.trim() || '',
     date,
@@ -429,7 +429,7 @@ export async function toggleDailyOrderPaid(id: string) {
     isPaid: newIsPaid,
     paidAmount: newPaidAmount,
     discountAmount: 0,
-    paymentMethod: newIsPaid ? (order.paymentMethod || 'كاش') : undefined,
+    paymentMethod: newIsPaid ? (order.paymentMethod || 'نقدي') : undefined,
   });
 }
 
@@ -990,38 +990,40 @@ export async function deleteManualIncome(id: string) {
 // =================== إدارة الصندوق والنقدية لحظة بلحظة ===================
 
 export function getCashDrawerSummary(date: string = getTodayDate()) {
-  // 1. مبيعات كاش مستلمة اليوم
+  // 1. مبيعات نقدي مستلمة اليوم في الدرج
   const dayOrders = getDailyOrdersByDate(date);
+  const isCashMethod = (method?: string) => method === 'نقدي' || method === 'كاش' || !method;
+
   const cashSales = dayOrders
-    .filter(o => o.paymentMethod === 'كاش')
+    .filter(o => isCashMethod(o.paymentMethod))
     .reduce((sum, o) => sum + (o.paidAmount || 0), 0);
 
-  // مبيعات بنك / محفظة / جوال بي
+  // مبيعات بنكية وإلكترونية (بنك فلسطين / بال باي / جوال بي)
   const bankSales = dayOrders
-    .filter(o => o.paymentMethod !== 'كاش' && o.paidAmount > 0)
+    .filter(o => !isCashMethod(o.paymentMethod) && (o.paidAmount || 0) > 0)
     .reduce((sum, o) => sum + (o.paidAmount || 0), 0);
 
   // 2. سداد ديون تم اليوم نقدياً
   const allDebtEntries = currentDebts.flatMap(d => d.entries || []);
   const todayDebtCashPayments = allDebtEntries
-    .filter(e => e.date === date && e.isPaymentRecord && e.paymentMethod === 'كاش')
+    .filter(e => e.date === date && e.isPaymentRecord && isCashMethod(e.paymentMethod))
     .reduce((sum, e) => sum + e.amount, 0);
 
   const todayDebtBankPayments = allDebtEntries
-    .filter(e => e.date === date && e.isPaymentRecord && e.paymentMethod !== 'كاش')
+    .filter(e => e.date === date && e.isPaymentRecord && !isCashMethod(e.paymentMethod))
     .reduce((sum, e) => sum + e.amount, 0);
 
-  // 3. إيرادات يدوية كاش
+  // 3. إيرادات يدوية نقدي بالدرج
   const todayIncomes = getIncomesByDate(date);
   const cashIncomes = todayIncomes
-    .filter(i => i.paymentMethod === 'كاش')
+    .filter(i => isCashMethod(i.paymentMethod))
     .reduce((sum, i) => sum + i.amount, 0);
 
-  // 4. مصاريف كاش تم دفعها من الدرج اليوم
+  // 4. مصاريف تم دفعها من الدرج اليوم
   const todayExp = getExpensesByDate(date);
   const cashExpenses = todayExp.reduce((sum, e) => sum + e.amount, 0);
 
-  // النقدية الفعلية المتوقعة في الدرج (الكاش الصافي في اليد)
+  // النقدية الفعلية المتوقعة في الدرج (الصافي في اليد)
   const netCashInDrawer = (cashSales + todayDebtCashPayments + cashIncomes) - cashExpenses;
 
   // إجمالي الإيرادات الكلية لليوم بجميع الطرق

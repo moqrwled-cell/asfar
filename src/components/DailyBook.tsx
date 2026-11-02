@@ -60,14 +60,14 @@ export default function DailyBook({ onBack, workerName }: Props) {
     { department: 'ألبان وأجبان', price: 0, quantity: 1 }
   ]);
   const [note, setNote] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('كاش');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('نقدي');
   const [isPaidQuick, setIsPaidQuick] = useState(true);
 
   // نافذة السداد الجزئي (إما نقل للدين أو خصم مسامحة فقط)
   const [partialModalOrder, setPartialModalOrder] = useState<DailyOrder | null>(null);
   const [partialPayAmount, setPartialPayAmount] = useState<number>(0);
   const [partialAction, setPartialAction] = useState<'debt' | 'discount'>('debt');
-  const [partialMethod, setPartialMethod] = useState<PaymentMethod>('كاش');
+  const [partialMethod, setPartialMethod] = useState<PaymentMethod>('نقدي');
 
   // رسالة إشعار الترحيل التلقائي
   const [autoTransferInfo, setAutoTransferInfo] = useState<{ count: number; total: number } | null>(null);
@@ -137,7 +137,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
     setCustomerName('');
     setOrderItems([{ department: departments[0]?.name || 'ألبان وأجبان', price: 0, quantity: 1 }]);
     setNote('');
-    setPaymentMethod('كاش');
+    setPaymentMethod('نقدي');
     setIsPaidQuick(true);
     setShowAddModal(false);
   };
@@ -150,7 +150,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
       return;
     }
 
-    const cName = customerName.trim() || (isPaidQuick ? 'زبون كاش' : 'زبون بدون اسم');
+    const cName = customerName.trim() || (isPaidQuick ? 'زبون عام' : 'زبون بدون اسم');
 
     await addDailyOrder({
       customerName: cName,
@@ -372,7 +372,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
                       <span>•</span>
                       <span>بواسطة: {order.workerName}</span>
                       <span>•</span>
-                      <span className="text-slate-300 font-medium">الدفع: {order.paymentMethod || 'كاش'}</span>
+                      <span className="text-slate-300 font-medium">الدفع: {order.paymentMethod || 'نقدي'}</span>
                     </div>
                   </div>
 
@@ -495,13 +495,13 @@ export default function DailyBook({ onBack, workerName }: Props) {
             {/* اسم الزبون مع الإكمال التلقائي */}
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1">
-                اسم الزبون (اختياري للبيع الكاش)
+                اسم الزبون
               </label>
               <AutoSuggestInput
                 value={customerName}
                 onChange={setCustomerName}
                 suggestions={allSuggestedNames}
-                placeholder="مثال: محمد، أبو أحمد، أو اتركها فارغة لكاش عام"
+                placeholder="اسم الزبون (مثال: محمد، أبو أحمد...)"
                 className="w-full bg-slate-950 text-white px-3.5 py-2.5 rounded-2xl border border-slate-700/80 text-sm outline-none focus:border-emerald-500"
               />
             </div>
@@ -620,15 +620,15 @@ export default function DailyBook({ onBack, workerName }: Props) {
                   onChange={e => setPaymentMethod(e.target.value as PaymentMethod)}
                   className="w-full bg-slate-950 text-white font-semibold px-3 py-2 rounded-xl border border-slate-700/80 text-xs outline-none"
                 >
-                  <option value="كاش">كاش (نقد)</option>
-                  <option value="بنك">بنك / فيزا</option>
-                  <option value="محفظة">محفظة إلكترونية</option>
+                  <option value="نقدي">نقدي</option>
+                  <option value="بنك فلسطين">بنك فلسطين</option>
+                  <option value="بال باي">بال باي</option>
                   <option value="جوال بي">جوال بي</option>
                 </select>
               </div>
             </div>
 
-            {/* خيار حالة الدفع المباشرة */}
+            {/* خيار حالة الدفع */}
             <div className="flex gap-2 pt-1">
               <button
                 type="button"
@@ -639,7 +639,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
                     : 'bg-slate-950 text-slate-400 border-slate-800'
                 }`}
               >
-                ✓ تم الدفع كاش
+                ✓ تم الدفع
               </button>
               <button
                 type="button"
@@ -722,9 +722,9 @@ export default function DailyBook({ onBack, workerName }: Props) {
                 onChange={e => setPartialMethod(e.target.value as PaymentMethod)}
                 className="w-full bg-slate-950 text-white font-semibold px-3 py-2 rounded-xl border border-slate-700 text-xs"
               >
-                <option value="كاش">كاش</option>
-                <option value="بنك">بنك / فيزا</option>
-                <option value="محفظة">محفظة إلكترونية</option>
+                <option value="نقدي">نقدي</option>
+                <option value="بنك فلسطين">بنك فلسطين</option>
+                <option value="بال باي">بال باي</option>
                 <option value="جوال بي">جوال بي</option>
               </select>
             </div>

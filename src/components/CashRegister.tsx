@@ -34,7 +34,7 @@ export default function CashRegister({ onBack, workerName }: Props) {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [incomeTitle, setIncomeTitle] = useState('');
   const [incomeAmount, setIncomeAmount] = useState<number>(0);
-  const [incomeMethod, setIncomeMethod] = useState<PaymentMethod>('كاش');
+  const [incomeMethod, setIncomeMethod] = useState<PaymentMethod>('نقدي');
   const [incomeNote, setIncomeNote] = useState('');
 
   // أداة جرد الدرج السريع (Cash Counter)
@@ -223,15 +223,15 @@ export default function CashRegister({ onBack, workerName }: Props) {
       <div className="glass-panel rounded-3xl p-4 mb-6 border border-slate-800">
         <h4 className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-2">
           <CreditCard className="w-4 h-4 text-purple-400" />
-          <span>المبالغ غير النقدية (في الحساب البنكي / المحافظ - خارج الدرج):</span>
+          <span>المبالغ الإلكترونية والبنكية (بنك فلسطين / بال باي / جوال بي - خارج الدرج):</span>
         </h4>
         <div className="grid grid-cols-2 gap-3 text-center">
           <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-            <span className="text-[11px] text-slate-400 block">مبيعات بنك / بطاقات</span>
+            <span className="text-[11px] text-slate-400 block">مبيعات بنكية وإلكترونية</span>
             <span className="text-sm font-bold text-purple-300">{formatCurrency(summary.bankSales)}</span>
           </div>
           <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-            <span className="text-[11px] text-slate-400 block">سداد ديون بنك / بطاقات</span>
+            <span className="text-[11px] text-slate-400 block">سداد ديون إلكتروني وبنكي</span>
             <span className="text-sm font-bold text-purple-300">{formatCurrency(summary.todayDebtBankPayments)}</span>
           </div>
         </div>
@@ -380,12 +380,26 @@ export default function CashRegister({ onBack, workerName }: Props) {
             </div>
 
             <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-1">طريقة الإيداع</label>
+              <select
+                value={incomeMethod}
+                onChange={e => setIncomeMethod(e.target.value as PaymentMethod)}
+                className="w-full bg-slate-950 text-white font-semibold px-3 py-2 rounded-xl border border-slate-700 text-xs"
+              >
+                <option value="نقدي">نقدي (في الدرج)</option>
+                <option value="بنك فلسطين">بنك فلسطين</option>
+                <option value="بال باي">بال باي</option>
+                <option value="جوال بي">جوال بي</option>
+              </select>
+            </div>
+
+            <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1">البيان *</label>
               <input
                 type="text"
                 value={incomeTitle}
                 onChange={e => setIncomeTitle(e.target.value)}
-                placeholder="مثال: فكة صباحية، تمويل من المالك مقداد..."
+                placeholder="مثال: فكة صباحية، تمويل إضافي للصندوق..."
                 className="w-full bg-slate-950 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs"
               />
             </div>

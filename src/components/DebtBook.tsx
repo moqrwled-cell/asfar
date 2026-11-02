@@ -59,7 +59,7 @@ export default function DebtBook({ onBack, workerName }: Props) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [payAmount, setPayAmount] = useState<number>(0);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('كاش');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('نقدي');
   const [paymentNote, setPaymentNote] = useState('');
 
   useEffect(() => {
@@ -645,9 +645,9 @@ export default function DebtBook({ onBack, workerName }: Props) {
                 onChange={e => setPaymentMethod(e.target.value as PaymentMethod)}
                 className="w-full bg-slate-950 text-white font-semibold px-3 py-2 rounded-xl border border-slate-700 text-xs"
               >
-                <option value="كاش">كاش (نقد في الصندوق)</option>
-                <option value="بنك">بنك / حوالة</option>
-                <option value="محفظة">محفظة إلكترونية</option>
+                <option value="نقدي">نقدي</option>
+                <option value="بنك فلسطين">بنك فلسطين</option>
+                <option value="بال باي">بال باي</option>
                 <option value="جوال بي">جوال بي</option>
               </select>
             </div>

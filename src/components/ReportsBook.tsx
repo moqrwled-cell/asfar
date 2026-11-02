@@ -103,7 +103,7 @@ export default function ReportsBook({ onBack, workerName }: Props) {
   // أكثر الزبائن شراءً في الشهر
   const customerMonthlyTotals: Record<string, number> = {};
   monthOrders.forEach(o => {
-    if (o.customerName && o.customerName !== 'زبون كاش' && o.customerName !== 'زبون عام (كاش)') {
+    if (o.customerName && o.customerName !== 'زبون عام' && o.customerName !== 'زبون كاش' && o.customerName !== 'زبون عام (كاش)' && o.customerName !== 'زبون بدون اسم') {
       customerMonthlyTotals[o.customerName] = (customerMonthlyTotals[o.customerName] || 0) + o.totalAmount;
     }
   });
