@@ -9,6 +9,7 @@ import {
 import { 
   getDailyOrdersByDate, 
   addDailyOrder, 
+  updateDailyOrder,
   deleteDailyOrder, 
   toggleDailyOrderPaid, 
   payDailyOrderAmount, 
@@ -27,6 +28,7 @@ import {
   Plus, 
   Minus, 
   Trash2, 
+  Edit3,
   CheckCircle2, 
   Clock, 
   ArrowLeft, 
@@ -54,8 +56,9 @@ export default function DailyBook({ onBack, workerName }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPaid, setFilterPaid] = useState<'all' | 'paid' | 'unpaid'>('all');
 
-  // نموذج إضافة طلب جديد
+  // نموذج إضافة وتعديل الطلب
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [customerName, setCustomerName] = useState('');
   const [orderItems, setOrderItems] = useState<OrderItem[]>([
     { department: 'ألبان وأجبان', price: 0, quantity: 1 }
@@ -141,6 +144,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
   };
 
   const handleResetForm = () => {
+    setEditingOrderId(null);
     setCustomerName('');
     setOrderItems([{ department: departments[0]?.name || 'ألبان وأجبان', price: 0, quantity: 1 }]);
     setNote('');
@@ -148,6 +152,18 @@ export default function DailyBook({ onBack, workerName }: Props) {
     setTransferredToPerson(workerName === 'أحمد' ? 'أحمد' : 'عبدالله');
     setIsPaidQuick(true);
     setShowAddModal(false);
+  };
+
+  // فتح نافذة التعديل على طلب موجود مسبقاً
+  const handleOpenEditModal = (order: DailyOrder) => {
+    setEditingOrderId(order.id);
+    setCustomerName(order.customerName === 'زبون عام' || order.customerName === 'زبون بدون اسم' ? '' : order.customerName);
+    setOrderItems(order.items && order.items.length > 0 ? order.items.map(i => ({ ...i })) : [{ department: departments[0]?.name || 'ألبان وأجبان', price: 0, quantity: 1 }]);
+    setNote(order.note || '');
+    setPaymentMethod(order.paymentMethod || 'نقدي');
+    setTransferredToPerson(order.transferredToPerson || (workerName === 'أحمد' ? 'أحمد' : 'عبدالله'));
+    setIsPaidQuick(order.isPaid);
+    setShowAddModal(true);
   };
 
   const handleSaveOrder = async () => {
@@ -159,17 +175,33 @@ export default function DailyBook({ onBack, workerName }: Props) {
     }
 
     const cName = customerName.trim() || (isPaidQuick ? 'زبون عام' : 'زبون بدون اسم');
+    const totalAmount = validItems.reduce((sum, i) => sum + (Number(i.price) * Number(i.quantity)), 0);
 
-    await addDailyOrder({
-      customerName: cName,
-      items: validItems,
-      workerName,
-      date: selectedDate,
-      note: note.trim(),
-      paymentMethod,
-      transferredToPerson,
-      isPaid: isPaidQuick,
-    });
+    if (editingOrderId) {
+      // تعديل طلب قائم
+      await updateDailyOrder(editingOrderId, {
+        customerName: cName,
+        items: validItems,
+        totalAmount,
+        paidAmount: isPaidQuick ? totalAmount : 0,
+        isPaid: isPaidQuick,
+        paymentMethod,
+        transferredToPerson,
+        note: note.trim(),
+      });
+    } else {
+      // إضافة طلب جديد
+      await addDailyOrder({
+        customerName: cName,
+        items: validItems,
+        workerName,
+        date: selectedDate,
+        note: note.trim(),
+        paymentMethod,
+        transferredToPerson,
+        isPaid: isPaidQuick,
+      });
+    }
 
     handleResetForm();
     loadData();
@@ -473,18 +505,31 @@ export default function DailyBook({ onBack, workerName }: Props) {
                     )}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (confirm('حذف هذا الطلب نهائياً؟')) {
-                        deleteDailyOrder(order.id);
-                      }
-                    }}
-                    className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
-                    title="حذف الطلب"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {/* زر التعديل على الطلب */}
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditModal(order)}
+                      className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all active-press flex items-center gap-1"
+                      title="تعديل هذا الطلب"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>تعديل</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm('حذف هذا الطلب نهائياً؟')) {
+                          deleteDailyOrder(order.id);
+                        }
+                      }}
+                      className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
+                      title="حذف الطلب"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -499,7 +544,9 @@ export default function DailyBook({ onBack, workerName }: Props) {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-emerald-400" />
-                <h3 className="text-base font-bold text-white">تسجيل طلب / بيع جديد</h3>
+                <h3 className="text-base font-bold text-white">
+                  {editingOrderId ? 'تعديل تفاصيل الطلب' : 'تسجيل طلب / بيع جديد'}
+                </h3>
               </div>
               <button
                 type="button"
@@ -723,7 +770,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
                 onClick={handleSaveOrder}
                 className="py-3 px-8 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/25 active-press"
               >
-                تأكيد وحفظ الطلب ✓
+                {editingOrderId ? 'حفظ التعديلات ✓' : 'تأكيد وحفظ الطلب ✓'}
               </button>
             </div>
           </div>
