@@ -17,9 +17,12 @@ import {
   CreditCard, 
   Receipt, 
   Wallet,
-  Sparkles
+  Sparkles,
+  Smartphone,
+  Building2,
+  User
 } from 'lucide-react';
-import { PaymentMethod } from '../types';
+import { PaymentMethod, TransferRecipient } from '../types';
 
 interface Props {
   onBack: () => void;
@@ -35,6 +38,9 @@ export default function CashRegister({ onBack, workerName }: Props) {
   const [incomeTitle, setIncomeTitle] = useState('');
   const [incomeAmount, setIncomeAmount] = useState<number>(0);
   const [incomeMethod, setIncomeMethod] = useState<PaymentMethod>('نقدي');
+  const [incomeTransferredTo, setIncomeTransferredTo] = useState<TransferRecipient>(
+    workerName === 'أحمد' ? 'أحمد' : 'عبدالله'
+  );
   const [incomeNote, setIncomeNote] = useState('');
 
   // أداة جرد الدرج السريع (Cash Counter)
@@ -67,6 +73,7 @@ export default function CashRegister({ onBack, workerName }: Props) {
       title: incomeTitle.trim(),
       amount: incomeAmount,
       paymentMethod: incomeMethod,
+      transferredToPerson: incomeTransferredTo,
       workerName,
       notes: incomeNote.trim(),
       date: selectedDate,
@@ -111,18 +118,146 @@ export default function CashRegister({ onBack, workerName }: Props) {
         />
       </div>
 
-      {/* البطاقة الرئيسية للكاش الفعلي في اليد */}
+      {/* 1. أولوية الصندوق: التحويلات الإلكترونية والبنكية (غير نقدي) - وصل أحمد ووصل عبدالله */}
+      <div className="space-y-3 mb-6 animate-fadeIn">
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
+            <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-blue-400" />
+              <span>التحويلات الإلكترونية والبنكية (أولوية غير النقدي)</span>
+            </h2>
+          </div>
+          <span className="text-xs font-bold text-blue-300 bg-blue-500/15 border border-blue-500/30 px-3 py-1 rounded-full">
+            الإجمالي: {formatCurrency(summary.totalNonCash)}
+          </span>
+        </div>
+
+        {/* بطاقتي وصل أحمد ووصل عبدالله */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {/* بطاقة وصل أحمد */}
+          <div className="glass-panel rounded-3xl p-5 border-blue-500/40 bg-gradient-to-br from-blue-950/40 via-slate-900/90 to-slate-900/90 shadow-xl shadow-blue-500/10">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold border border-blue-500/30">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-white">وصل أحمد</h3>
+                  <span className="text-[11px] text-blue-300">تحويلات الحسابات والمحافظ</span>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20">
+                مدير
+              </span>
+            </div>
+
+            <div className="text-2xl sm:text-3xl font-black text-white tracking-tight my-2">
+              {formatCurrency(summary.ahmedTotal)}
+            </div>
+
+            {/* تفصيل قنوات وصول المبالغ لأحمد */}
+            <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-1.5 text-center text-[11px]">
+              <div className="bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">بنك فلسطين</span>
+                <span className="font-bold text-blue-300">{formatCurrency(summary.ahmedBankOfPalestine)}</span>
+              </div>
+              <div className="bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">بال باي</span>
+                <span className="font-bold text-blue-300">{formatCurrency(summary.ahmedPalPay)}</span>
+              </div>
+              <div className="bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">جوال بي</span>
+                <span className="font-bold text-blue-300">{formatCurrency(summary.ahmedJawwalPay)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* بطاقة وصل عبدالله */}
+          <div className="glass-panel rounded-3xl p-5 border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 via-slate-900/90 to-slate-900/90 shadow-xl shadow-emerald-500/10">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold border border-emerald-500/30">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-white">وصل عبدالله</h3>
+                  <span className="text-[11px] text-emerald-300">تحويلات الحسابات والمحافظ</span>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+                مدير
+              </span>
+            </div>
+
+            <div className="text-2xl sm:text-3xl font-black text-white tracking-tight my-2">
+              {formatCurrency(summary.abdullahTotal)}
+            </div>
+
+            {/* تفصيل قنوات وصول المبالغ لعبدالله */}
+            <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-1.5 text-center text-[11px]">
+              <div className="bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">بنك فلسطين</span>
+                <span className="font-bold text-emerald-300">{formatCurrency(summary.abdullahBankOfPalestine)}</span>
+              </div>
+              <div className="bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">بال باي</span>
+                <span className="font-bold text-emerald-300">{formatCurrency(summary.abdullahPalPay)}</span>
+              </div>
+              <div className="bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">جوال بي</span>
+                <span className="font-bold text-emerald-300">{formatCurrency(summary.abdullahJawwalPay)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* أشرطة القنوات غير النقدية الثلاث الإجمالية */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-slate-900/90 rounded-2xl p-2.5 border border-slate-800 text-center">
+            <div className="flex items-center justify-center gap-1 text-[10px] text-slate-400 mb-0.5">
+              <Building2 className="w-3 h-3 text-sky-400" />
+              <span>بنك فلسطين</span>
+            </div>
+            <span className="text-xs sm:text-sm font-black text-sky-400">
+              {formatCurrency(summary.channelBankOfPalestine)}
+            </span>
+          </div>
+
+          <div className="bg-slate-900/90 rounded-2xl p-2.5 border border-slate-800 text-center">
+            <div className="flex items-center justify-center gap-1 text-[10px] text-slate-400 mb-0.5">
+              <CreditCard className="w-3 h-3 text-purple-400" />
+              <span>بال باي</span>
+            </div>
+            <span className="text-xs sm:text-sm font-black text-purple-400">
+              {formatCurrency(summary.channelPalPay)}
+            </span>
+          </div>
+
+          <div className="bg-slate-900/90 rounded-2xl p-2.5 border border-slate-800 text-center">
+            <div className="flex items-center justify-center gap-1 text-[10px] text-slate-400 mb-0.5">
+              <Smartphone className="w-3 h-3 text-emerald-400" />
+              <span>جوال بي</span>
+            </div>
+            <span className="text-xs sm:text-sm font-black text-emerald-400">
+              {formatCurrency(summary.channelJawwalPay)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. قسم الكاش الفعلي في درج الصندوق */}
       <div className="glass-panel rounded-3xl p-6 mb-6 border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-slate-900/90 to-slate-900/90 text-center relative overflow-hidden">
         <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600" />
         
         <span className="text-xs font-bold text-emerald-400/90 uppercase tracking-wider block mb-1">
-          صافي الكاش الفعلي المتوقع في درج الصندوق الآن
+          صافي الكاش الفعلي المتوقع في درج الصندوق الآن (نقداً باليد)
         </span>
         <div className="text-3xl sm:text-4xl font-black text-white tracking-tight my-2">
           {formatCurrency(summary.netCashInDrawer)}
         </div>
         <p className="text-xs text-slate-400">
-          (كاش مبيعات + كاش سداد ديون + إيرادات يدوية) - (مصاريف كاش)
+          (مبيعات نقدي + تحصيل ديون نقدي + إيداعات) - (مصاريف من الدرج)
         </p>
 
         <div className="flex justify-center gap-2 mt-4">
@@ -132,7 +267,7 @@ export default function CashRegister({ onBack, workerName }: Props) {
             className="py-2.5 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold active-press flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
-            <span>إيداع فكة / إيراد يدوي</span>
+            <span>إيداع فكة / إيراد بالصندوق</span>
           </button>
 
           <button
@@ -219,23 +354,6 @@ export default function CashRegister({ onBack, workerName }: Props) {
         </div>
       </div>
 
-      {/* المبالغ غير النقدية (البنك والمحافظ) مفصولة لمنع العجز اللحظي */}
-      <div className="glass-panel rounded-3xl p-4 mb-6 border border-slate-800">
-        <h4 className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-2">
-          <CreditCard className="w-4 h-4 text-purple-400" />
-          <span>المبالغ الإلكترونية والبنكية (بنك فلسطين / بال باي / جوال بي - خارج الدرج):</span>
-        </h4>
-        <div className="grid grid-cols-2 gap-3 text-center">
-          <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-            <span className="text-[11px] text-slate-400 block">مبيعات بنكية وإلكترونية</span>
-            <span className="text-sm font-bold text-purple-300">{formatCurrency(summary.bankSales)}</span>
-          </div>
-          <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-            <span className="text-[11px] text-slate-400 block">سداد ديون إلكتروني وبنكي</span>
-            <span className="text-sm font-bold text-purple-300">{formatCurrency(summary.todayDebtBankPayments)}</span>
-          </div>
-        </div>
-      </div>
 
       {/* أداة جرد الدرج وعد العملات */}
       {showCounter && (
@@ -391,6 +509,37 @@ export default function CashRegister({ onBack, workerName }: Props) {
                 <option value="بال باي">بال باي</option>
                 <option value="جوال بي">جوال بي</option>
               </select>
+            </div>
+
+            {/* تم التحويل على (عبدالله أو أحمد) */}
+            <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
+                تم التحويل على:
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIncomeTransferredTo('عبدالله')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    incomeTransferredTo === 'عبدالله'
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/80 shadow-md shadow-emerald-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  عبدالله
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIncomeTransferredTo('أحمد')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    incomeTransferredTo === 'أحمد'
+                      ? 'bg-blue-500/20 text-blue-300 border-blue-500/80 shadow-md shadow-blue-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  أحمد
+                </button>
+              </div>
             </div>
 
             <div>

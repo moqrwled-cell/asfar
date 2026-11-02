@@ -5,6 +5,7 @@ import {
   Expense, 
   ManualIncome, 
   PaymentMethod, 
+  TransferRecipient,
   Department, 
   UISettings, 
   SyncStatus,
@@ -181,6 +182,7 @@ export async function fetchFromSupabase() {
         isPaid: Boolean(o.is_paid),
         transferredToDebt: Boolean(o.transferred_to_debt),
         paymentMethod: o.payment_method,
+        transferredToPerson: o.transferred_to_person as TransferRecipient,
         workerName: o.worker_name,
         note: o.note,
         date: o.date,
@@ -203,6 +205,7 @@ export async function fetchFromSupabase() {
             discountAmount: Number(e.discount_amount) || 0,
             isPaymentRecord: Boolean(e.is_payment_record),
             paymentMethod: e.payment_method,
+            transferredToPerson: e.transferred_to_person as TransferRecipient,
             date: e.date,
             time: e.time,
             note: e.note,
@@ -245,6 +248,7 @@ export async function fetchFromSupabase() {
         title: i.title,
         amount: Number(i.amount) || 0,
         paymentMethod: i.payment_method,
+        transferredToPerson: i.transferred_to_person as TransferRecipient,
         date: i.date,
         time: i.time,
         workerName: i.worker_name,
@@ -321,6 +325,7 @@ export async function addDailyOrder(params: {
   date?: string;
   note?: string;
   paymentMethod?: PaymentMethod;
+  transferredToPerson?: TransferRecipient;
   isPaid?: boolean;
 }): Promise<DailyOrder> {
   const date = params.date || getTodayDate();
@@ -338,6 +343,7 @@ export async function addDailyOrder(params: {
     isPaid,
     transferredToDebt: false,
     paymentMethod: params.paymentMethod || 'نقدي',
+    transferredToPerson: params.transferredToPerson,
     workerName: params.workerName,
     note: params.note?.trim() || '',
     date,
@@ -361,6 +367,7 @@ export async function addDailyOrder(params: {
       is_paid: newOrder.isPaid,
       transferred_to_debt: newOrder.transferredToDebt,
       payment_method: newOrder.paymentMethod,
+      transferred_to_person: newOrder.transferredToPerson,
       worker_name: newOrder.workerName,
       note: newOrder.note,
       date: newOrder.date,
@@ -396,6 +403,7 @@ export async function updateDailyOrder(id: string, updates: Partial<DailyOrder>)
       is_paid: updated.isPaid,
       transferred_to_debt: updated.transferredToDebt,
       payment_method: updated.paymentMethod,
+      transferred_to_person: updated.transferredToPerson,
       worker_name: updated.workerName,
       note: updated.note,
     }).eq('id', id);
@@ -438,7 +446,8 @@ export async function payDailyOrderAmount(
   orderId: string, 
   payAmount: number, 
   method: PaymentMethod, 
-  action: 'debt' | 'discount'
+  action: 'debt' | 'discount',
+  transferredToPerson?: TransferRecipient
 ) {
   const order = currentDailyOrders.find(o => o.id === orderId);
   if (!order) return;
@@ -453,6 +462,7 @@ export async function payDailyOrderAmount(
       paidAmount: total,
       discountAmount: 0,
       paymentMethod: method,
+      transferredToPerson: transferredToPerson || order.transferredToPerson,
     });
   } else if (action === 'discount') {
     // مسامحة في الباقي
@@ -461,6 +471,7 @@ export async function payDailyOrderAmount(
       paidAmount: payAmount,
       discountAmount: remaining,
       paymentMethod: method,
+      transferredToPerson: transferredToPerson || order.transferredToPerson,
       note: order.note ? `${order.note} | خصم ومسامحة: ${remaining} ₪` : `خصم ومسامحة: ${remaining} ₪`,
     });
   } else if (action === 'debt') {
@@ -470,6 +481,7 @@ export async function payDailyOrderAmount(
       paidAmount: payAmount,
       discountAmount: 0,
       paymentMethod: method,
+      transferredToPerson: transferredToPerson || order.transferredToPerson,
       transferredToDebt: true,
     });
 
@@ -717,6 +729,7 @@ export async function payPartialDebt(customerId: string, params: {
   payAmount: number;
   discountAmount?: number;
   paymentMethod: PaymentMethod;
+  transferredToPerson?: TransferRecipient;
   note?: string;
   workerName?: string;
   date?: string;
@@ -727,6 +740,7 @@ export async function payPartialDebt(customerId: string, params: {
   const payAmount = Number(params.payAmount) || 0;
   const discount = Number(params.discountAmount) || 0;
   const noteParts = [];
+  if (params.transferredToPerson) noteParts.push(`تحويل على: ${params.transferredToPerson}`);
   if (params.note) noteParts.push(params.note);
   if (discount > 0) noteParts.push(`مسامحة وخصم: ${discount} ₪`);
 
@@ -734,11 +748,12 @@ export async function payPartialDebt(customerId: string, params: {
     id: generateId(),
     debtId: customerId,
     customerName: customer.customerName,
-    itemDetails: `دفعة نقدية (${params.paymentMethod})`,
+    itemDetails: `سداد دفعة (${params.paymentMethod}${params.transferredToPerson ? ` - ${params.transferredToPerson}` : ''})`,
     amount: payAmount,
     discountAmount: discount,
     isPaymentRecord: true,
     paymentMethod: params.paymentMethod,
+    transferredToPerson: params.transferredToPerson,
     date: params.date || getTodayDate(),
     time: getCurrentTime(),
     note: noteParts.join(' | '),
@@ -764,6 +779,7 @@ export async function payPartialDebt(customerId: string, params: {
       discount_amount: paymentEntry.discountAmount,
       is_payment_record: paymentEntry.isPaymentRecord,
       payment_method: paymentEntry.paymentMethod,
+      transferred_to_person: paymentEntry.transferredToPerson,
       date: paymentEntry.date,
       time: paymentEntry.time,
       note: paymentEntry.note,
@@ -938,6 +954,7 @@ export async function addManualIncome(params: {
   title: string;
   amount: number;
   paymentMethod: PaymentMethod;
+  transferredToPerson?: TransferRecipient;
   workerName: string;
   notes?: string;
   date?: string;
@@ -947,6 +964,7 @@ export async function addManualIncome(params: {
     title: params.title.trim(),
     amount: Number(params.amount) || 0,
     paymentMethod: params.paymentMethod,
+    transferredToPerson: params.transferredToPerson,
     date: params.date || getTodayDate(),
     time: getCurrentTime(),
     workerName: params.workerName,
@@ -964,6 +982,7 @@ export async function addManualIncome(params: {
       title: newInc.title,
       amount: newInc.amount,
       payment_method: newInc.paymentMethod,
+      transferred_to_person: newInc.transferredToPerson,
       date: newInc.date,
       time: newInc.time,
       worker_name: newInc.workerName,
@@ -990,10 +1009,10 @@ export async function deleteManualIncome(id: string) {
 // =================== إدارة الصندوق والنقدية لحظة بلحظة ===================
 
 export function getCashDrawerSummary(date: string = getTodayDate()) {
-  // 1. مبيعات نقدي مستلمة اليوم في الدرج
-  const dayOrders = getDailyOrdersByDate(date);
   const isCashMethod = (method?: string) => method === 'نقدي' || method === 'كاش' || !method;
 
+  // 1. مبيعات اليوم
+  const dayOrders = getDailyOrdersByDate(date);
   const cashSales = dayOrders
     .filter(o => isCashMethod(o.paymentMethod))
     .reduce((sum, o) => sum + (o.paidAmount || 0), 0);
@@ -1003,7 +1022,7 @@ export function getCashDrawerSummary(date: string = getTodayDate()) {
     .filter(o => !isCashMethod(o.paymentMethod) && (o.paidAmount || 0) > 0)
     .reduce((sum, o) => sum + (o.paidAmount || 0), 0);
 
-  // 2. سداد ديون تم اليوم نقدياً
+  // 2. سداد ديون تم اليوم
   const allDebtEntries = currentDebts.flatMap(d => d.entries || []);
   const todayDebtCashPayments = allDebtEntries
     .filter(e => e.date === date && e.isPaymentRecord && isCashMethod(e.paymentMethod))
@@ -1029,6 +1048,48 @@ export function getCashDrawerSummary(date: string = getTodayDate()) {
   // إجمالي الإيرادات الكلية لليوم بجميع الطرق
   const totalDayRevenue = cashSales + bankSales + todayDebtCashPayments + todayDebtBankPayments + cashIncomes;
 
+  // =================== تفصيل التحويلات والمستلمين (وصل أحمد ووصل عبدالله) ===================
+  type RevenueItem = { amount: number; method: string; toPerson?: string };
+  const allRevenues: RevenueItem[] = [
+    ...dayOrders.filter(o => (o.paidAmount || 0) > 0).map(o => ({
+      amount: o.paidAmount || 0,
+      method: o.paymentMethod || 'نقدي',
+      toPerson: o.transferredToPerson
+    })),
+    ...allDebtEntries.filter(e => e.date === date && e.isPaymentRecord && e.amount > 0).map(e => ({
+      amount: e.amount,
+      method: e.paymentMethod || 'نقدي',
+      toPerson: e.transferredToPerson
+    })),
+    ...todayIncomes.filter(i => i.amount > 0).map(i => ({
+      amount: i.amount,
+      method: i.paymentMethod || 'نقدي',
+      toPerson: i.transferredToPerson
+    }))
+  ];
+
+  // تحصيلات أحمد
+  const ahmedItems = allRevenues.filter(r => r.toPerson === 'أحمد');
+  const ahmedTotal = ahmedItems.reduce((sum, r) => sum + r.amount, 0);
+  const ahmedBankOfPalestine = ahmedItems.filter(r => r.method === 'بنك فلسطين' || r.method === 'بنك').reduce((sum, r) => sum + r.amount, 0);
+  const ahmedPalPay = ahmedItems.filter(r => r.method === 'بال باي' || r.method === 'محفظة').reduce((sum, r) => sum + r.amount, 0);
+  const ahmedJawwalPay = ahmedItems.filter(r => r.method === 'جوال بي').reduce((sum, r) => sum + r.amount, 0);
+  const ahmedCash = ahmedItems.filter(r => isCashMethod(r.method)).reduce((sum, r) => sum + r.amount, 0);
+
+  // تحصيلات عبدالله
+  const abdullahItems = allRevenues.filter(r => r.toPerson === 'عبدالله');
+  const abdullahTotal = abdullahItems.reduce((sum, r) => sum + r.amount, 0);
+  const abdullahBankOfPalestine = abdullahItems.filter(r => r.method === 'بنك فلسطين' || r.method === 'بنك').reduce((sum, r) => sum + r.amount, 0);
+  const abdullahPalPay = abdullahItems.filter(r => r.method === 'بال باي' || r.method === 'محفظة').reduce((sum, r) => sum + r.amount, 0);
+  const abdullahJawwalPay = abdullahItems.filter(r => r.method === 'جوال بي').reduce((sum, r) => sum + r.amount, 0);
+  const abdullahCash = abdullahItems.filter(r => isCashMethod(r.method)).reduce((sum, r) => sum + r.amount, 0);
+
+  // إجمالي القنوات غير النقدية (بنك فلسطين / بال باي / جوال بي)
+  const channelBankOfPalestine = allRevenues.filter(r => r.method === 'بنك فلسطين' || r.method === 'بنك').reduce((sum, r) => sum + r.amount, 0);
+  const channelPalPay = allRevenues.filter(r => r.method === 'بال باي' || r.method === 'محفظة').reduce((sum, r) => sum + r.amount, 0);
+  const channelJawwalPay = allRevenues.filter(r => r.method === 'جوال بي').reduce((sum, r) => sum + r.amount, 0);
+  const totalNonCash = channelBankOfPalestine + channelPalPay + channelJawwalPay;
+
   return {
     cashSales,
     bankSales,
@@ -1038,6 +1099,23 @@ export function getCashDrawerSummary(date: string = getTodayDate()) {
     cashExpenses,
     netCashInDrawer,
     totalDayRevenue,
+    // غير النقدي والأجهزة
+    totalNonCash,
+    channelBankOfPalestine,
+    channelPalPay,
+    channelJawwalPay,
+    // تفصيل وصل أحمد
+    ahmedTotal,
+    ahmedBankOfPalestine,
+    ahmedPalPay,
+    ahmedJawwalPay,
+    ahmedCash,
+    // تفصيل وصل عبدالله
+    abdullahTotal,
+    abdullahBankOfPalestine,
+    abdullahPalPay,
+    abdullahJawwalPay,
+    abdullahCash,
   };
 }
 

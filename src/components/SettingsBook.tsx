@@ -23,7 +23,8 @@ import {
   Plus, 
   CheckCircle2, 
   ShieldAlert,
-  ShoppingBag
+  ShoppingBag,
+  Smartphone
 } from 'lucide-react';
 import { UISettings, Department } from '../types';
 
@@ -177,6 +178,31 @@ export default function SettingsBook({ onBack, workerName, onLogout }: Props) {
         <p className="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
           ✓ البيانات محفوظة في جهازك وتتزامن تلقائياً وبكل بساطة بدون تعقيد.
         </p>
+      </div>
+
+      {/* بطاقة تثبيت التطبيق على الجهاز */}
+      <div className="glass-panel rounded-3xl p-5 border border-slate-800 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <Smartphone className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-white">تطبيق سوبر ماركت مقداد (PWA)</h3>
+            <span className="text-xs text-slate-400">تثبيت التطبيق على شاشة هاتفك أو جهازك</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            sessionStorage.removeItem('pwa_prompt_dismissed');
+            window.location.reload();
+          }}
+          className="py-2 px-3.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-xs font-bold text-blue-300 border border-blue-500/40 flex items-center gap-1.5 active-press"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>تثبيت التطبيق 📲</span>
+        </button>
       </div>
 
       {/* تحكم أبعاد الواجهة والخطوط (UI Controls) كما كان في كفي روما */}

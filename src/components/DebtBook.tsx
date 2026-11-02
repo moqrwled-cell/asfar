@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   DebtRecord, 
   DebtEntry, 
-  PaymentMethod 
+  PaymentMethod, 
+  TransferRecipient 
 } from '../types';
 import { 
   getDebts, 
@@ -60,6 +61,7 @@ export default function DebtBook({ onBack, workerName }: Props) {
   const [payAmount, setPayAmount] = useState<number>(0);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('نقدي');
+  const [transferredToPerson, setTransferredToPerson] = useState<TransferRecipient>('عبدالله');
   const [paymentNote, setPaymentNote] = useState('');
 
   useEffect(() => {
@@ -123,6 +125,7 @@ export default function DebtBook({ onBack, workerName }: Props) {
       payAmount,
       discountAmount,
       paymentMethod,
+      transferredToPerson,
       note: paymentNote.trim(),
       workerName,
     });
@@ -650,6 +653,37 @@ export default function DebtBook({ onBack, workerName }: Props) {
                 <option value="بال باي">بال باي</option>
                 <option value="جوال بي">جوال بي</option>
               </select>
+            </div>
+
+            {/* تم التحويل على (عبدالله أو أحمد) */}
+            <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
+                تم التحويل على:
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTransferredToPerson('عبدالله')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    transferredToPerson === 'عبدالله'
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/80 shadow-md shadow-emerald-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  عبدالله
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTransferredToPerson('أحمد')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    transferredToPerson === 'أحمد'
+                      ? 'bg-blue-500/20 text-blue-300 border-blue-500/80 shadow-md shadow-blue-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  أحمد
+                </button>
+              </div>
             </div>
 
             <div>

@@ -3,6 +3,7 @@ import {
   DailyOrder, 
   OrderItem, 
   PaymentMethod, 
+  TransferRecipient,
   Department 
 } from '../types';
 import { 
@@ -61,6 +62,9 @@ export default function DailyBook({ onBack, workerName }: Props) {
   ]);
   const [note, setNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('نقدي');
+  const [transferredToPerson, setTransferredToPerson] = useState<TransferRecipient>(
+    workerName === 'أحمد' ? 'أحمد' : 'عبدالله'
+  );
   const [isPaidQuick, setIsPaidQuick] = useState(true);
 
   // نافذة السداد الجزئي (إما نقل للدين أو خصم مسامحة فقط)
@@ -68,6 +72,9 @@ export default function DailyBook({ onBack, workerName }: Props) {
   const [partialPayAmount, setPartialPayAmount] = useState<number>(0);
   const [partialAction, setPartialAction] = useState<'debt' | 'discount'>('debt');
   const [partialMethod, setPartialMethod] = useState<PaymentMethod>('نقدي');
+  const [partialTransferredTo, setPartialTransferredTo] = useState<TransferRecipient>(
+    workerName === 'أحمد' ? 'أحمد' : 'عبدالله'
+  );
 
   // رسالة إشعار الترحيل التلقائي
   const [autoTransferInfo, setAutoTransferInfo] = useState<{ count: number; total: number } | null>(null);
@@ -138,6 +145,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
     setOrderItems([{ department: departments[0]?.name || 'ألبان وأجبان', price: 0, quantity: 1 }]);
     setNote('');
     setPaymentMethod('نقدي');
+    setTransferredToPerson(workerName === 'أحمد' ? 'أحمد' : 'عبدالله');
     setIsPaidQuick(true);
     setShowAddModal(false);
   };
@@ -159,6 +167,7 @@ export default function DailyBook({ onBack, workerName }: Props) {
       date: selectedDate,
       note: note.trim(),
       paymentMethod,
+      transferredToPerson,
       isPaid: isPaidQuick,
     });
 
@@ -173,7 +182,8 @@ export default function DailyBook({ onBack, workerName }: Props) {
       partialModalOrder.id,
       partialPayAmount,
       partialMethod,
-      partialAction
+      partialAction,
+      partialTransferredTo
     );
     setPartialModalOrder(null);
     loadData();
@@ -373,6 +383,14 @@ export default function DailyBook({ onBack, workerName }: Props) {
                       <span>بواسطة: {order.workerName}</span>
                       <span>•</span>
                       <span className="text-slate-300 font-medium">الدفع: {order.paymentMethod || 'نقدي'}</span>
+                      {order.transferredToPerson && (
+                        <>
+                          <span>•</span>
+                          <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+                            تحويل لـ: {order.transferredToPerson}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -628,6 +646,43 @@ export default function DailyBook({ onBack, workerName }: Props) {
               </div>
             </div>
 
+            {/* خيار تم التحويل على (عبدالله أو أحمد) */}
+            <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-blue-400" />
+                  <span>تم التحويل على:</span>
+                </label>
+                <span className="text-[11px] text-slate-400">
+                  المستلم: <strong className="text-emerald-400">{transferredToPerson}</strong>
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTransferredToPerson('عبدالله')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    transferredToPerson === 'عبدالله'
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/80 shadow-md shadow-emerald-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  عبدالله
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTransferredToPerson('أحمد')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    transferredToPerson === 'أحمد'
+                      ? 'bg-blue-500/20 text-blue-300 border-blue-500/80 shadow-md shadow-blue-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  أحمد
+                </button>
+              </div>
+            </div>
+
             {/* خيار حالة الدفع */}
             <div className="flex gap-2 pt-1">
               <button
@@ -727,6 +782,37 @@ export default function DailyBook({ onBack, workerName }: Props) {
                 <option value="بال باي">بال باي</option>
                 <option value="جوال بي">جوال بي</option>
               </select>
+            </div>
+
+            {/* تم التحويل على */}
+            <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
+                تم التحويل على:
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPartialTransferredTo('عبدالله')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    partialTransferredTo === 'عبدالله'
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/80 shadow-md shadow-emerald-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  عبدالله
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPartialTransferredTo('أحمد')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    partialTransferredTo === 'أحمد'
+                      ? 'bg-blue-500/20 text-blue-300 border-blue-500/80 shadow-md shadow-blue-500/10'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  أحمد
+                </button>
+              </div>
             </div>
 
             {/* تحديد مصير المبلغ المتبقي (نقل للدين أو خصم مسامحة فقط حسب طلب المستخدم) */}

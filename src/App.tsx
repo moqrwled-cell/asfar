@@ -6,6 +6,7 @@ import ExpensesBook from './components/ExpensesBook';
 import CashRegister from './components/CashRegister';
 import ReportsBook from './components/ReportsBook';
 import SettingsBook from './components/SettingsBook';
+import InstallPromptModal from './components/InstallPromptModal';
 import { 
   getDailyOrdersByDate, 
   getExpensesByDate, 
@@ -130,11 +131,18 @@ export default function App() {
   };
 
   if (!workerName) {
-    return <Login onLogin={handleLogin} />;
+    return (
+      <>
+        <Login onLogin={handleLogin} />
+        <InstallPromptModal />
+      </>
+    );
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
+      {/* نافذة طلب تثبيت تطبيق الويب (PWA) عند أول فتح */}
+      <InstallPromptModal />
       {/* عرض الصفحة المحددة */}
       <div className="flex-1">
         {page === 'daily' && <DailyBook onBack={handleBackToHome} workerName={workerName} />}

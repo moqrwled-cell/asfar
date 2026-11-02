@@ -1,5 +1,7 @@
 export type PaymentMethod = 'نقدي' | 'بنك فلسطين' | 'بال باي' | 'جوال بي' | 'كاش' | 'بنك' | 'محفظة';
 
+export type TransferRecipient = 'عبدالله' | 'أحمد';
+
 export interface Department {
   id: string;
   name: string;
@@ -26,6 +28,7 @@ export interface DailyOrder {
   isPaid: boolean;
   transferredToDebt?: boolean; // هل تم نقله لدفتر الديون
   paymentMethod?: PaymentMethod;
+  transferredToPerson?: TransferRecipient; // تم التحويل على (عبدالله أو أحمد)
   workerName: string;
   note?: string;
   date: string; // YYYY-MM-DD
@@ -42,6 +45,7 @@ export interface DebtEntry {
   discountAmount?: number;
   isPaymentRecord: boolean; // هل هو سجل سداد دفعة نقدية
   paymentMethod?: PaymentMethod;
+  transferredToPerson?: TransferRecipient; // تم التحويل على (عبدالله أو أحمد)
   date: string;
   time?: string;
   note?: string;
@@ -79,6 +83,7 @@ export interface ManualIncome {
   title: string;
   amount: number;
   paymentMethod: PaymentMethod;
+  transferredToPerson?: TransferRecipient; // تم التحويل على (عبدالله أو أحمد)
   date: string;
   time: string;
   workerName: string;
